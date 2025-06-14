@@ -1,7 +1,13 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Press Start 2P', Arial, sans-serif;
     text-align: center;
-    background: #faf8ef;
+    color: #f0f0f0;
+    background-color: #1a1a1a;
+    background-image:
+        radial-gradient(circle at top, rgba(255, 0, 128, 0.4), transparent 70%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 50px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 1px, transparent 1px, transparent 50px);
+    background-size: cover, 50px 50px, 50px 50px;
 }
 
 #score-container {
