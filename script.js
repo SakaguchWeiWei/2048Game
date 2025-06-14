@@ -181,4 +181,121 @@ document.addEventListener('keydown', e => {
     }
 });
 
+let autoInterval = null;
+
+function getMaxTile() {
+    return Math.max(...board.flat());
+}
+
+function simulateMove(direction) {
+    const backupBoard = board.map(row => row.slice());
+    const backupScore = score;
+    const backupMerged = mergedCells.slice();
+    let moved = false;
+    switch (direction) {
+        case 'left':
+            moved = moveLeft();
+            break;
+        case 'right':
+            moved = moveRight();
+            break;
+        case 'up':
+            moved = moveUp();
+            break;
+        case 'down':
+            moved = moveDown();
+            break;
+    }
+    const newBoard = board.map(row => row.slice());
+    board = backupBoard;
+    score = backupScore;
+    mergedCells = backupMerged;
+    return moved ? newBoard : null;
+}
+
+function evaluateBoard(b) {
+    let empty = 0;
+    let max = 0;
+    for (let r = 0; r < size; r++) {
+        for (let c = 0; c < size; c++) {
+            if (b[r][c] === 0) empty++;
+            if (b[r][c] > max) max = b[r][c];
+        }
+    }
+    return empty * 1000 + max;
+}
+
+function getBestMove() {
+    const dirs = ['left', 'right', 'up', 'down'];
+    let bestDir = null;
+    let bestScore = -Infinity;
+    for (let d of dirs) {
+        const sim = simulateMove(d);
+        if (!sim) continue;
+        const val = evaluateBoard(sim);
+        if (val > bestScore) {
+            bestScore = val;
+            bestDir = d;
+        }
+    }
+    return bestDir;
+}
+
+function autoMove() {
+    const dir = getBestMove();
+    if (!dir) return false;
+    let moved = false;
+    switch (dir) {
+        case 'left':
+            moved = moveLeft();
+            break;
+        case 'right':
+            moved = moveRight();
+            break;
+        case 'up':
+            moved = moveUp();
+            break;
+        case 'down':
+            moved = moveDown();
+            break;
+    }
+    if (moved) {
+        addRandomTile();
+        draw();
+    }
+    return moved;
+}
+
+function startAutoPlay() {
+    if (autoInterval) return;
+    status.textContent = 'Auto playing...';
+    document.getElementById('auto-play').textContent = 'Stop';
+    autoInterval = setInterval(() => {
+        if (checkGameOver() || getMaxTile() >= 2048) {
+            clearInterval(autoInterval);
+            autoInterval = null;
+            status.textContent = getMaxTile() >= 2048 ? 'Reached 2048!' : 'Game Over!';
+            document.getElementById('auto-play').textContent = 'Auto Play';
+            return;
+        }
+        autoMove();
+    }, 300);
+}
+
+function stopAutoPlay() {
+    if (!autoInterval) return;
+    clearInterval(autoInterval);
+    autoInterval = null;
+    status.textContent = '';
+    document.getElementById('auto-play').textContent = 'Auto Play';
+}
+
+document.getElementById('auto-play').addEventListener('click', () => {
+    if (autoInterval) {
+        stopAutoPlay();
+    } else {
+        startAutoPlay();
+    }
+});
+
 initBoard();
